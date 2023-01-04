@@ -7,7 +7,6 @@ import (
 
 	"context"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -48,27 +47,27 @@ func TestPasswordless(t *testing.T) {
 	s := p.SetTransport("test", tt, tg, 5*time.Minute)
 
 	// Check transports match those set
-	assert.Equal(t, map[string]Strategy{"test": s}, p.ListStrategies(nil))
+	require.Equal(t, map[string]Strategy{"test": s}, p.ListStrategies(nil))
 	if s0, err := p.GetStrategy(nil, "test"); err != nil {
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	} else {
-		assert.Equal(t, s, s0)
+		require.Equal(t, s, s0)
 	}
 
 	// Check returned token is as expected
-	assert.NoError(t, p.RequestToken(nil, "test", "uid", "recipient"))
-	assert.Equal(t, tt.token, tg.token)
-	assert.Equal(t, tt.recipient, "recipient")
+	require.NoError(t, p.RequestToken(nil, "test", "uid", "recipient"))
+	require.Equal(t, tt.token, tg.token)
+	require.Equal(t, tt.recipient, "recipient")
 
 	// Check invalid token is rejected
 	v, err := p.VerifyToken(nil, "uid", "badtoken")
-	assert.NoError(t, err)
-	assert.False(t, v)
+	require.NoError(t, err)
+	require.False(t, v)
 
 	// Verify token
 	v, err = p.VerifyToken(nil, "uid", tg.token)
-	assert.NoError(t, err)
-	assert.True(t, v)
+	require.NoError(t, err)
+	require.True(t, v)
 }
 
 type testStrategy struct {
@@ -88,27 +87,27 @@ func TestPasswordlessFailures(t *testing.T) {
 	p := New(store)
 
 	_, err = p.GetStrategy(nil, "madeup")
-	assert.Equal(t, err, ErrUnknownStrategy)
+	require.Equal(t, err, ErrUnknownStrategy)
 
 	err = p.RequestToken(nil, "madeup", "", "")
-	assert.Equal(t, err, ErrUnknownStrategy)
+	require.Equal(t, err, ErrUnknownStrategy)
 
 	p.SetStrategy("unfriendly", testStrategy{valid: false})
 
 	err = p.RequestToken(nil, "unfriendly", "", "")
-	assert.Equal(t, err, ErrNotValidForContext)
+	require.Equal(t, err, ErrNotValidForContext)
 }
 
 func TestRequestToken(t *testing.T) {
 	// Test Generate()
-	assert.EqualError(t, RequestToken(nil, nil, &mockStrategy{
+	require.EqualError(t, RequestToken(nil, nil, &mockStrategy{
 		generate: func(c context.Context) (string, error) {
 			return "", fmt.Errorf("refused generate")
 		},
 	}, "", ""), "refused generate", "Generate() error should propagate")
 
 	// Test Send()
-	assert.EqualError(t, RequestToken(nil, &mockTokenStore{
+	require.EqualError(t, RequestToken(nil, &mockTokenStore{
 		store: func(ctx context.Context, token, uid string, ttl time.Duration) error {
 			return nil
 		},
@@ -134,7 +133,7 @@ func TestRequestToken(t *testing.T) {
 			return nil
 		},
 	}, "", "")
-	assert.EqualError(t, err, "refused store", "Store() error should propagate")
+	require.EqualError(t, err, "refused store", "Store() error should propagate")
 }
 
 func TestVerifyToken(t *testing.T) {
@@ -143,16 +142,16 @@ func TestVerifyToken(t *testing.T) {
 			return false, fmt.Errorf("refused verify")
 		},
 	}, "", "")
-	assert.False(t, valid)
-	assert.EqualError(t, err, "refused verify", "Verify() error should propagate")
+	require.False(t, valid)
+	require.EqualError(t, err, "refused verify", "Verify() error should propagate")
 
 	valid, err = VerifyToken(nil, &mockTokenStore{
 		verify: func(ctx context.Context, token, uid string) (bool, error) {
 			return false, nil
 		},
 	}, "", "")
-	assert.False(t, valid)
-	assert.NoError(t, err)
+	require.False(t, valid)
+	require.NoError(t, err)
 
 	valid, err = VerifyToken(nil, &mockTokenStore{
 		verify: func(ctx context.Context, token, uid string) (bool, error) {
@@ -162,8 +161,8 @@ func TestVerifyToken(t *testing.T) {
 			return fmt.Errorf("delete failure")
 		},
 	}, "", "")
-	assert.True(t, valid)
-	assert.EqualError(t, err, "delete failure")
+	require.True(t, valid)
+	require.EqualError(t, err, "delete failure")
 }
 
 type mockStrategy struct {

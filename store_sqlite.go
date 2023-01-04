@@ -129,7 +129,7 @@ func (s SQLiteStore) Verify(ctx context.Context, token, uid string) (
 	err = bcrypt.CompareHashAndPassword(
 		[]byte(session.TokenHash), []byte(token))
 	if err != nil {
-		return false, errors.WithStack(ErrTokenNotValid)
+		return false, nil
 	}
 
 	return true, nil
@@ -137,7 +137,19 @@ func (s SQLiteStore) Verify(ctx context.Context, token, uid string) (
 
 // Delete removes a key from the store
 func (s SQLiteStore) Delete(ctx context.Context, uid string) error {
-	return errors.Errorf("TODO Delete")
+	r, err := s.db.Exec(
+		fmt.Sprintf("delete from %s where uid = ?", s.tableName), uid)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	rowsAffected, err := r.RowsAffected()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if rowsAffected == 0 {
+		return errors.WithStack(ErrTokenNotFound)
+	}
+	return nil
 }
 
 func (s SQLiteStore) getSessionByUID(uid string) (session Session, err error) {

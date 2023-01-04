@@ -89,6 +89,7 @@ func TestSQLiteStoreVerify(t *testing.T) {
 	require.NoError(t, err)
 	b, err = s.Verify(nil, "bad_token", "uid")
 	require.False(t, b)
+	require.NoError(t, err)
 
 	// Token correct
 	b, err = s.Verify(nil, "token", "uid")

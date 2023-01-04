@@ -1,6 +1,6 @@
 # go-passwordless-sqlite
 
-Inspired by `johnsto/go-passwordless`, see this [fork with SQLite support](https://github.com/mozey/go-passwordless). This repo might introduce backwards incompatible changes.
+Inspired by [johnsto/go-passwordless](https://github.com/johnsto/go-passwordless), see [fork with SQLite support](https://github.com/mozey/go-passwordless). This repo might introduce incompatible changes.
 
 This library can be used for passwordless auth. That is done by sending a link that includes a secret token to the user. If the user can receive and click the link it proves ownership of e.g. an email address, social media account, or phone number
 
@@ -36,3 +36,12 @@ go run ./...
 ```
 
 To see how this lib can be used to implement [a login UI](http://localhost:8080)
+
+
+## Tests
+
+Run all the tests
+
+```go
+gotest -v ./...
+```
