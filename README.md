@@ -28,9 +28,11 @@ See repo linked above for
 
 ## Example 
 
-Run the example to see how this lib can be used to implement the UI
+Run the example
 
 ```go
-go run ./example/...
-
+cd ./example
+go run ./...
 ```
+
+To see how this lib can be used to implement [a login UI](http://localhost:8080)
